@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold"><i class="bi bi-calendar-event me-2"></i>Eventos del Juego</h1>
+        <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#addEventoModal">
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Evento
+        </button>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Eventos Hoy</h6>
+                            <h3 class="card-title text-primary">{{ eventos_hoy }}</h3>
+                        </div>
+                        <i class="bi bi-calendar2-check fs-1 text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Niveles Alcanzados</h6>
+                            <h3 class="card-title text-success">{{ total_niveles }}</h3>
+                        </div>
+                        <i class="bi bi-trophy fs-1 text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Premios Entregados</h6>
+                            <h3 class="card-title text-info">{{ total_premios }}</h3>
+                        </div>
+                        <i class="bi bi-gift fs-1 text-info opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Registro de Eventos</h5>
+        </div>
+        <div class="card-body">
+            <div class="timeline">
+                {% for evento in eventos %}
+                <div class="timeline-item {% if loop.index % 2 == 0 %}timeline-item-right{% endif %}">
+                    <div class="timeline-item-marker">
+                        <div class="timeline-item-marker-indicator bg-{% if evento.event_name == 'Nivel Alcanzado' %}success{% else %}info{% endif %}">
+                            <i class="bi bi-{% if evento.event_name == 'Nivel Alcanzado' %}trophy{% else %}gift{% endif %}"></i>
+                        </div>
+                    </div>
+                    <div class="timeline-item-content">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0 fw-bold">{{ evento.event_name }}</h6>
+                            <small class="text-muted">{{ evento.created_at[:16].replace('T', ' ') }}</small>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="avatar-icon bg-warning text-dark rounded-circle me-2">
+                                {{ evento.user_info.email[0]|upper if evento.user_info else '?' }}
+                            </div>
+                            <div>
+                                <small class="text-muted">Usuario:</small>
+                                <div>{{ evento.user_info.email if evento.user_info else evento.user_id }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Detalles:</small>
+                            <div>
+                                {% if evento.event_details.nivel_alcanzado %}
+                                <span class="badge bg-success me-2">
+                                    Nivel {{ evento.event_details.nivel_alcanzado }}
+                                </span>
+                                {% endif %}
+                                {% if evento.event_details.premio %}
+                                <span class="badge bg-info">
+                                    Premio: {{ evento.event_details.premio }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editEventoModal{{ loop.index }}">
+                                <i class="bi bi-pencil"></i> Editar
+                            </button>
+                            <a href="{{ url_for('delete_evento', id=evento._id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('¿Eliminar este evento?')">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales (similar estructura a los anteriores) -->
+{% include 'modals/eventos_modals.html' %}
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 1rem;
+    margin: 0 0 0 1rem;
+    border-left: 1px solid #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-item-marker {
+    position: absolute;
+    left: -2.5rem;
+    top: 0;
+}
+
+.timeline-item-marker-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    color: white;
+}
+
+.timeline-item-content {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.timeline-item-right .timeline-item-marker {
+    left: auto;
+    right: -2.5rem;
+}
+
+.timeline-item-right .timeline-item-content {
+    margin-right: 3rem;
+    margin-left: 0;
+}
+</style>
+{% endblock %}

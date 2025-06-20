@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold"><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</h1>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUsuarioModal">
+            <i class="bi bi-plus-lg me-1"></i> Agregar Usuario
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-table me-2"></i>Listado de Usuarios</h5>
+                <div class="input-group w-25">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="usuariosTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="15%"><i class="bi bi-key me-1"></i> ID Usuario</th>
+                            <th width="25%"><i class="bi bi-envelope me-1"></i> Email</th>
+                            <th width="20%"><i class="bi bi-person-badge me-1"></i> Avatares</th>
+                            <th width="20%"><i class="bi bi-calendar me-1"></i> Fecha Registro</th>
+                            <th width="20%" class="text-end"><i class="bi bi-gear me-1"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr class="animate__animated animate__fadeIn">
+                            <td>
+                                <span class="badge bg-dark rounded-pill">
+                                    <i class="bi bi-person-fill me-1"></i>{{ usuario.user_id }}
+                                </span>
+                            </td>
+                            <td class="fw-semibold">{{ usuario.email }}</td>
+                            <td>
+                                <div class="avatar-chips">
+                                    {% for avatar_id in usuario.avatar_refs %}
+                                    <span class="badge bg-info me-1 mb-1">
+                                        <i class="bi bi-person-square me-1"></i>{{ avatar_id }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-muted small">Sin avatares</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ usuario.created_at[:10] if usuario.created_at else 'N/A' }}
+                                </small>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                            data-bs-target="#editUsuarioModal{{ loop.index }}">
+                                        <i class="bi bi-pencil-square me-1"></i>Editar
+                                    </button>
+                                    <a href="{{ url_for('delete_usuario', id=usuario._id) }}" 
+                                       class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('¿Eliminar este usuario permanentemente?')">
+                                        <i class="bi bi-trash me-1"></i>Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light">
+            <small class="text-muted">Mostrando {{ usuarios|length }} usuarios registrados</small>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar Usuario -->
+<div class="modal fade" id="addUsuarioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-person-plus me-1"></i>Agregar Nuevo Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_usuario') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Usuario</label>
+                        <input type="text" class="form-control" name="user_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password Hash</label>
+                        <input type="text" class="form-control" name="password_hash" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Avatares Asociados</label>
+                        <select class="form-select" name="avatar_refs" multiple>
+                            {% for avatar in avatares_list %}
+                            <option value="{{ avatar.avatar_id }}">{{ avatar.name }} ({{ avatar.avatar_id }})</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Mantén presionado Ctrl para seleccionar múltiples</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-1"></i> Guardar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de Edición para cada Usuario -->
+{% for usuario in usuarios %}
+<div class="modal fade" id="editUsuarioModal{{ loop.index }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-1"></i>Editar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('update_usuario', id=usuario._id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Usuario</label>
+                        <input type="text" class="form-control" name="user_id" value="{{ usuario.user_id }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" value="{{ usuario.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password Hash</label>
+                        <input type="text" class="form-control" name="password_hash" value="{{ usuario.password_hash }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Avatares Asociados</label>
+                        <select class="form-select" name="avatar_refs" multiple>
+                            {% for avatar in avatares_list %}
+                            <option value="{{ avatar.avatar_id }}"
+                                {% if avatar.avatar_id in usuario.avatar_refs %}selected{% endif %}>
+                                {{ avatar.name }} ({{ avatar.avatar_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+// Búsqueda en tiempo real
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#usuariosTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchValue) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

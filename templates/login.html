@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 400px;">
+    <h2 class="text-center">Iniciar Sesión</h2>
+    <form method="POST" class="mt-4">
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="form-group mt-2">
+            <label>Contraseña</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-danger mt-3">
+                {{ messages[0] }}
+            </div>
+          {% endif %}
+        {% endwith %}
+        <button type="submit" class="btn btn-primary btn-block mt-4">Entrar</button>
+    </form>
+</div>
+{% endblock %}

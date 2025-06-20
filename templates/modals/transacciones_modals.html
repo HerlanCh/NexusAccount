@@ -1,0 +1,108 @@
+<!-- Modal para agregar transacción -->
+<div class="modal fade" id="addTransaccionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Transacción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_transaccion') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Transacción</label>
+                        <input type="text" class="form-control" name="transaction_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <select class="form-select" name="user_id" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select" name="type" required>
+                            <option value="COMPRA">Compra</option>
+                            <option value="VENTA">Venta</option>
+                            <option value="RECOMPENSA">Recompensa</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" step="0.01" class="form-control" name="amount" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-1"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de edición para cada transacción -->
+{% for transaccion in transacciones %}
+<div class="modal fade" id="editTransaccionModal{{ loop.index }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Transacción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('update_transaccion', id=transaccion._id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Transacción</label>
+                        <input type="text" class="form-control" name="transaction_id" 
+                               value="{{ transaccion.transaction_id }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <select class="form-select" name="user_id" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}" 
+                                    {% if usuario.user_id == transaccion.user_id %}selected{% endif %}>
+                                {{ usuario.email }} ({{ usuario.user_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select" name="type" required>
+                            <option value="COMPRA" {% if transaccion.type=='COMPRA' %}selected{% endif %}>Compra</option>
+                            <option value="VENTA" {% if transaccion.type=='VENTA' %}selected{% endif %}>Venta</option>
+                            <option value="RECOMPENSA" {% if transaccion.type=='RECOMPENSA' %}selected{% endif %}>Recompensa</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Monto</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" step="0.01" class="form-control" name="amount" 
+                                   value="{{ transaccion.amount }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}

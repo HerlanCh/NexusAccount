@@ -1,0 +1,126 @@
+<!-- Modal para agregar relación -->
+<div class="modal fade" id="addRelacionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Agregar Nueva Relación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_relacion') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Relation ID</label>
+                        <input type="text" class="form-control" name="relation_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario 1</label>
+                        <select class="form-select" name="user_id_1" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario 2</label>
+                        <select class="form-select" name="user_id_2" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Relación</label>
+                        <select class="form-select" name="type" required>
+                            <option value="AMIGO">Amigo</option>
+                            <option value="SEGUIDOR">Seguidor</option>
+                            <option value="BLOQUEADO">Bloqueado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-1"></i> Agregar Relación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición Reutilizable -->
+<div class="modal fade" id="editRelacionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formEditarRelacion" method="POST">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Relación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Relation ID</label>
+                        <input type="text" class="form-control" name="relation_id" id="edit_relation_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario 1</label>
+                        <select class="form-select" name="user_id_1" id="edit_user_id_1" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario 2</label>
+                        <select class="form-select" name="user_id_2" id="edit_user_id_2" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Relación</label>
+                        <select class="form-select" name="type" id="edit_type" required>
+                            <option value="AMIGO">Amigo</option>
+                            <option value="SEGUIDOR">Seguidor</option>
+                            <option value="BLOQUEADO">Bloqueado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editarBtns = document.querySelectorAll('[data-bs-target="#editRelacionModal"]');
+    const form = document.getElementById('formEditarRelacion');
+
+    editarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const relationId = btn.getAttribute('data-relation-id');
+            const user1 = btn.getAttribute('data-user1');
+            const user2 = btn.getAttribute('data-user2');
+            const type = btn.getAttribute('data-type');
+
+            form.action = `/relaciones/update/${id}`;
+            document.getElementById('edit_relation_id').value = relationId;
+            document.getElementById('edit_user_id_1').value = user1;
+            document.getElementById('edit_user_id_2').value = user2;
+            document.getElementById('edit_type').value = type;
+        });
+    });
+});
+</script>

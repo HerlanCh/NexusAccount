@@ -1,0 +1,108 @@
+<!-- Modal para agregar evento -->
+<div class="modal fade" id="addEventoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nuevo Evento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_evento') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Evento</label>
+                        <input type="text" class="form-control" name="event_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <select class="form-select" name="user_id" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre Evento</label>
+                        <input type="text" class="form-control" name="event_name" required>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nivel Alcanzado</label>
+                            <input type="number" class="form-control" name="nivel_alcanzado" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Premio</label>
+                            <input type="text" class="form-control" name="premio">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save me-1"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de edición para cada evento -->
+{% for evento in eventos %}
+<div class="modal fade" id="editEventoModal{{ loop.index }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Evento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('update_evento', id=evento._id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ID Evento</label>
+                        <input type="text" class="form-control" name="event_id" 
+                               value="{{ evento.event_id }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <select class="form-select" name="user_id" required>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.user_id }}" 
+                                    {% if usuario.user_id == evento.user_id %}selected{% endif %}>
+                                {{ usuario.email }} ({{ usuario.user_id }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre Evento</label>
+                        <input type="text" class="form-control" name="event_name" 
+                               value="{{ evento.event_name }}" required>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nivel Alcanzado</label>
+                            <input type="number" class="form-control" name="nivel_alcanzado" 
+                                   value="{{ evento.event_details.nivel_alcanzado }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Premio</label>
+                            <input type="text" class="form-control" name="premio" 
+                                   value="{{ evento.event_details.premio }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}

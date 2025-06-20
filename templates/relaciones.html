@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold"><i class="bi bi-diagram-3 me-2"></i>Relaciones Sociales</h1>
+        <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#addRelacionModal">
+            <i class="bi bi-plus-circle me-1"></i> Nueva Relación
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Relaciones entre Usuarios</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="bi bi-link-45deg me-1"></i> ID Relación</th>
+                            <th><i class="bi bi-person me-1"></i> Usuario 1</th>
+                            <th><i class="bi bi-arrow-left-right me-1"></i> Tipo</th>
+                            <th><i class="bi bi-person me-1"></i> Usuario 2</th>
+                            <th><i class="bi bi-calendar me-1"></i> Fecha</th>
+                            <th class="text-end"><i class="bi bi-gear me-1"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for relacion in relaciones %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ relacion.relation_id }}</span></td>
+                            <td>
+                                {% if relacion.user_1_info %}
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-icon bg-info text-white rounded-circle me-2">
+                                        {{ relacion.user_1_info.email[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ relacion.user_1_info.email }}</div>
+                                        <small class="text-muted">ID: {{ relacion.user_id_1 }}</small>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">ID: {{ relacion.user_id_1 }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if relacion.type == 'AMIGO' %}
+                                <span class="badge bg-success rounded-pill">
+                                    <i class="bi bi-person-check me-1"></i>Amigos
+                                </span>
+                                {% elif relacion.type == 'SEGUIDOR' %}
+                                <span class="badge bg-info rounded-pill">
+                                    <i class="bi bi-person-plus me-1"></i>Seguidor
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger rounded-pill">
+                                    <i class="bi bi-person-x me-1"></i>Bloqueado
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if relacion.user_2_info %}
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-icon bg-warning text-dark rounded-circle me-2">
+                                        {{ relacion.user_2_info.email[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ relacion.user_2_info.email }}</div>
+                                        <small class="text-muted">ID: {{ relacion.user_id_2 }}</small>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">ID: {{ relacion.user_id_2 }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ relacion.created_at[:10] }}
+                                </small>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editRelacionModal"
+                                        data-id="{{ relacion._id }}"
+                                        data-relation-id="{{ relacion.relation_id }}"
+                                        data-user1="{{ relacion.user_id_1 }}"
+                                        data-user2="{{ relacion.user_id_2 }}"
+                                        data-type="{{ relacion.type }}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <a href="{{ url_for('delete_relacion', id=relacion._id) }}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('¿Eliminar esta relación?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales (similar estructura a los anteriores) -->
+{% include 'modals/relaciones_modals.html' %}
+
+<style>
+.avatar-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,85 @@
+
+
+/* Estilos generales */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* Mejoras en las tablas */
+.table {
+    --bs-table-bg: var(--bs-body-bg);
+    --bs-table-striped-bg: rgba(var(--bs-primary-rgb), 0.05);
+    --bs-table-hover-bg: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.table-hover tbody tr:hover {
+    transform: translateX(2px);
+    transition: transform 0.2s ease;
+}
+
+/* Tarjetas mejoradas */
+.card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+/* Badges mejorados */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Botones con sombra */
+.btn {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal mejorado */
+.modal-content {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar mejorado */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animaciones para elementos */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate-on-scroll.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Estilos para el tema oscuro */
+[data-bs-theme="dark"] {
+    .card, .modal-content {
+        background-color: var(--bs-dark-bg-subtle);
+    }
+    
+    .table {
+        --bs-table-bg: var(--bs-dark-bg-subtle);
+        --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+        --bs-table-hover-bg: rgba(255, 255, 255, 0.1);
+    }
+}

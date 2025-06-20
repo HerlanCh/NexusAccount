@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold animate__animated animate__fadeIn"><i class="bi bi-person-badge me-2"></i>Gestión de Avatares</h1>
+    <button class="btn btn-success btn-lg animate__animated animate__fadeIn" data-bs-toggle="modal" data-bs-target="#addAvatarModal">
+        <i class="bi bi-plus-lg me-1"></i> Agregar Avatar
+    </button>
+</div>
+
+<div class="card shadow animate__animated animate__fadeInUp">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Lista de Avatares</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th><i class="bi bi-key me-1"></i>Avatar ID</th>
+                        <th><i class="bi bi-person me-1"></i>Nombre</th>
+                        <th><i class="bi bi-person-circle me-1"></i>Usuario</th>
+                        <th><i class="bi bi-star me-1"></i>Nivel</th>
+                        <th><i class="bi bi-bar-chart me-1"></i>Stats</th>
+                        <th><i class="bi bi-calendar me-1"></i>Fecha Creación</th>
+                        <th><i class="bi bi-gear me-1"></i>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avatar in avatares %}
+                    <tr class="animate__animated animate__fadeIn">
+                        <td><span class="badge bg-dark">{{ avatar.avatar_id }}</span></td>
+                        <td class="fw-semibold">{{ avatar.name }}</td>
+                        <td>
+                            {% if avatar.user_info %}
+                            <span class="badge bg-info">{{ avatar.user_info.email }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ avatar.user_id }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary rounded-pill">
+                                <i class="bi bi-star-fill me-1"></i>{{ avatar.level }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge bg-info bg-opacity-10 text-info border border-info">
+                                    <i class="bi bi-lightning me-1"></i>Fuerza: {{ avatar.stats.fuerza }}
+                                </span>
+                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">
+                                    <i class="bi bi-speedometer2 me-1"></i>Agilidad: {{ avatar.stats.agilidad }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ avatar.created_at[:16].replace('T', ' ') if avatar.created_at }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" 
+                                        data-bs-target="#editAvatarModal{{ loop.index }}">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </button>
+                                <a href="{{ url_for('delete_avatar', id=avatar._id) }}" 
+                                   class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('¿Estás seguro de eliminar este avatar?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modales de Edición -->
+{% for avatar in avatares %}
+<div class="modal fade" id="editAvatarModal{{ loop.index }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Editar Avatar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('update_avatar', id=avatar._id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Avatar ID</label>
+                            <input type="text" class="form-control" name="avatar_id" value="{{ avatar.avatar_id }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Usuario</label>
+                            <select class="form-select" name="user_id" required>
+                                {% for usuario in usuarios_list %}
+                                <option value="{{ usuario.user_id }}" 
+                                        {% if usuario.user_id == avatar.user_id %}selected{% endif %}>
+                                    {{ usuario.email }} ({{ usuario.user_id }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="name" value="{{ avatar.name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nivel</label>
+                            <input type="number" class="form-control" name="level" value="{{ avatar.level }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Estadísticas</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fuerza</label>
+                                    <input type="number" class="form-control" name="fuerza" value="{{ avatar.stats.fuerza }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Agilidad</label>
+                                    <input type="number" class="form-control" name="agilidad" value="{{ avatar.stats.agilidad }}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i>Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal para Agregar Avatar -->
+<div class="modal fade" id="addAvatarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Agregar Nuevo Avatar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_avatar') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Avatar ID</label>
+                        <input type="text" class="form-control" name="avatar_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <select class="form-select" name="user_id" required>
+                            <option value="">Seleccionar usuario...</option>
+                            {% for usuario in usuarios_list %}
+                            <option value="{{ usuario.user_id }}">{{ usuario.email }} ({{ usuario.user_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nivel</label>
+                        <input type="number" class="form-control" name="level" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fuerza</label>
+                            <input type="number" class="form-control" name="fuerza" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Agilidad</label>
+                            <input type="number" class="form-control" name="agilidad" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Agregar Avatar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Animación al hacer scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('show');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}
